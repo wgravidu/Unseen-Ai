@@ -54,7 +54,17 @@ If needs_more_evidence=true, you MUST provide next_best_view with specific instr
 Only describe what photos support. Never claim definitive diagnosis. Ask at most one targeted follow-up.'''
 
 app = FastAPI(title='UNSEEN AI Backend', version='3.0')
-app.add_middleware(CORSMiddleware, allow_origins=[x.strip() for x in os.getenv('CORS_ORIGINS','http://localhost:5173,http://127.0.0.1:5173').split(',') if x.strip()], allow_credentials=True, allow_methods=['GET','POST'], allow_headers=['*'])
+# Default allows local + LAN phone testing on Vite origins. Set CORS_ORIGINS='*' explicitly for wide-open local testing only; do not use '*' on a public deployment.
+CORS_ORIGINS = [x.strip() for x in os.getenv('CORS_ORIGINS','http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173').split(',') if x.strip()]
+CORS_ALLOW_ALL = CORS_ORIGINS == ['*']
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'] if CORS_ALLOW_ALL else CORS_ORIGINS,
+    allow_origin_regex=None if CORS_ALLOW_ALL else r'https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+):(5173|4173)',
+    allow_credentials=False if CORS_ALLOW_ALL else True,
+    allow_methods=['*'] if CORS_ALLOW_ALL else ['GET', 'POST'],
+    allow_headers=['*'],
+)
 
 @app.get('/health')
 def health():

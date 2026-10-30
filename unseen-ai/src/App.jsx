@@ -26,6 +26,7 @@ import {
 import { useLanguage } from './i18n/LanguageContext.jsx'
 import { caseToFile, deleteCase as deleteSavedCase, listCases, loadCase, saveCase } from './local/caseStore.js'
 import { hasInsufficientEvidence } from './local/analysisState.js'
+import { resolveApiBaseUrl } from './local/apiBase.js'
 import { assessPhotoQuality, prepareImagesForApi } from './local/photoQuality.js'
 import { shouldAskForMoreEvidence } from './local/evidenceFlow.js'
 const loadReportGenerator = () => import('./local/report.js')
@@ -69,9 +70,16 @@ function storeMode(nextMode) {
   }
 }
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-).replace(/\/+$/, '')
+const API_BASE_URL = resolveApiBaseUrl(
+  import.meta.env.VITE_API_BASE_URL,
+  typeof window !== 'undefined' ? window.location : null,
+)
+
+if (typeof window !== 'undefined') {
+  console.log(`UNSEEN AI Local: http://${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'localhost' : window.location.hostname}:5173`)
+  console.log(`UNSEEN AI Network: http://${window.location.hostname}:5173 - Open this on mobile`)
+  console.log(`UNSEEN AI API: ${API_BASE_URL}`)
+}
 const MAX_FILE_SIZE = 8 * 1024 * 1024
 const SUPPORTED_IMAGE_TYPES = new Set([
   'image/jpeg',
