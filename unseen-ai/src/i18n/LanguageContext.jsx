@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
-import { translations } from './translations.js'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { loadLanguagePack, translations } from './translations.js'
 
 export const LANGUAGE_STORAGE_KEY = 'unseen-ai-language'
 
@@ -39,6 +39,16 @@ export function LanguageProvider({ children }) {
     }
     return initial
   })
+  const [, setPackVersion] = useState(0)
+
+  useEffect(() => {
+    if (language === 'en' || translations[language]) return
+    let cancelled = false
+    loadLanguagePack(language)
+      .then(() => { if (!cancelled) setPackVersion((version) => version + 1) })
+      .catch(() => { /* lookup() falls back to English until the pack loads */ })
+    return () => { cancelled = true }
+  }, [language])
 
   const setLanguage = useCallback((nextLanguage) => {
     const normalized = nextLanguage === 'si' ? 'si' : 'en'
