@@ -11,6 +11,11 @@ createRoot(document.getElementById('root')).render(
       <img className="app-bg-photo app-bg-right" src="/images/men-right.jpg" alt="" />
       <div className="app-bg-overlay" />
     </div>
+    <div className="mobile-hero" aria-hidden="true">
+      <img className="mobile-hero-photo mobile-hero-left" src="/images/lady-left.jpg" alt="" />
+      <img className="mobile-hero-photo mobile-hero-right" src="/images/men-right.jpg" alt="" />
+      <div className="mobile-hero-fade" />
+    </div>
     <LanguageProvider>
       <App />
     </LanguageProvider>
