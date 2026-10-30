@@ -1984,3 +1984,53 @@
     animation: none !important;
   }
 }
+
+/* ------- Mobile-first responsive layer (375px baseline) ------- */
+html, body { overflow-x: clip; }
+img, video, canvas, svg { max-width: 100%; }
+.app-shell, .workspace, .highlight-layout, .visualization-layout,
+.analysis-results, .analysis-panel, .upload-card { min-width: 0; }
+.selected-file, .gallery-item figcaption span,
+.history-item strong, .history-item span { overflow-wrap: anywhere; }
+.followup-dropzone, .gallery-dropzone, .upload-dropzone { touch-action: manipulation; }
+.answer-input { font-size: 16px; } /* prevents iOS focus zoom */
+
+@media (max-width: 760px) {
+  .hero-section h1 { font-size: clamp(30px, 9vw, 44px); line-height: 1.05; }
+  .feature-action { width: 100%; min-height: 48px; }
+  .upload-dropzone { min-height: 200px; }
+  .gallery-dropzone, .followup-dropzone { min-height: 192px; }
+  .camera-frame { min-height: 0; aspect-ratio: 4 / 3; }
+  .camera-frame video, .camera-frame img { max-height: 100%; }
+  .camera-button { min-height: 48px; }
+  .result-card { padding: 16px; }
+  .followup-button {
+    position: sticky;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 20;
+    box-shadow: 0 14px 34px rgba(2, 8, 23, 0.72), 0 10px 26px rgba(8, 145, 178, 0.3);
+  }
+  .highlight-box span, .focus-box span { white-space: normal; }
+}
+
+@media (min-width: 761px) {
+  .result-card { padding: 24px; }
+}
+
+@media (max-width: 375px) {
+  :root { font-size: 15px; }
+  .app-shell { width: calc(100% - 16px); }
+  .page-section, .upload-card, .analysis-panel { padding: 14px; border-radius: 17px; }
+  .hero-section { margin: 32px auto 22px; }
+  .hero-copy { font-size: 14px; }
+  .mode-status { padding: 9px 11px; }
+  .site-header { min-height: 60px; }
+  .header-brand { display: none; }
+  .api-status { max-width: 82px; font-size: 10.5px; padding: 6px 8px; }
+  .language-switch button { min-width: 34px; padding: 6px 6px; }
+  .gallery-item figcaption { padding: 7px; }
+  .results-heading { align-items: flex-start; }
+  .confidence strong { font-size: 19px; }
+  .local-metric-grid { grid-template-columns: 1fr; }
+  .side-nav { width: calc(100vw - 24px); padding: 16px; }
+}
