@@ -7,6 +7,13 @@ function listOrFallback(items, fallback) {
   return Array.isArray(items) && items.length ? items : [fallback]
 }
 
+export function getApiCausesForReport(analysis, text) {
+  if (!analysis?.is_wall_visible) return [text.causesNeedWall]
+  return analysis.possible_causes.length
+    ? analysis.possible_causes.map((cause) => `${cause.cause} - ${cause.likelihood} ${text.likelihood}`)
+    : [text.noCauses]
+}
+
 async function fileToDataUrl(file) {
   if (!file) return null
   return new Promise((resolve, reject) => {
@@ -68,6 +75,9 @@ const REPORT_TEXT = {
     noUncertainties: 'No uncertainties were returned.',
     causes: 'Possible Causes (AI-generated hypotheses, not confirmed findings)',
     noCauses: 'No possible causes were returned.',
+    causesNeedWall: 'Possible causes are not assessed until a wall is visible in the photo.',
+    status: 'Assessment Status',
+    insufficient: 'Evidence insufficient - no wall condition or cause is confirmed by this photo. Add the requested evidence before relying on any hypothesis.',
     likelihood: 'likelihood',
     evidence: 'Evidence Required',
     nextPhoto: 'Next photo',
@@ -126,6 +136,9 @@ const REPORT_TEXT = {
     noUncertainties: 'No uncertainties were returned.',
     causes: 'Possible Causes (AI-generated hypotheses, not confirmed findings)',
     noCauses: 'No possible causes were returned.',
+    causesNeedWall: 'Possible causes are not assessed until a wall is visible in the photo.',
+    status: 'Assessment Status',
+    insufficient: 'Evidence insufficient - no wall condition or cause is confirmed by this photo. Add the requested evidence before relying on any hypothesis.',
     likelihood: 'likelihood',
     evidence: 'Evidence Required',
     nextPhoto: 'Next photo',
@@ -228,14 +241,11 @@ export async function generateInvestigationReport({
       ...listOrFallback(analysis.observations, text.noObservations),
     ], y)
     y = addSection(doc, text.uncertainties, listOrFallback(analysis.uncertainties, text.noUncertainties), y)
-    y = addSection(
-      doc,
-      text.causes,
-      analysis.possible_causes.length
-        ? analysis.possible_causes.map((cause) => `${cause.cause} - ${cause.likelihood} ${text.likelihood}`)
-        : [text.noCauses],
-      y,
-    )
+    const insufficientEvidence = !analysis.is_wall_visible || analysis.needs_more_evidence
+    if (insufficientEvidence) {
+      y = addSection(doc, text.status, [text.insufficient], y)
+    }
+    y = addSection(doc, text.causes, getApiCausesForReport(analysis, text), y)
     const evidence = []
     if (analysis.followup_request) evidence.push(`${analysis.followup_request.type}: ${analysis.followup_request.text}`)
     if (analysis.next_best_view) {
@@ -251,7 +261,9 @@ export async function generateInvestigationReport({
     doc.setFontSize(10)
     doc.setTextColor(8, 145, 178)
     if (y > 270) { doc.addPage(); y = 16 }
-    doc.text(`${text.confidence}: ${Math.round(analysis.confidence * 100)}% (${text.confidenceNote})`, 14, y)
+    doc.text(analysis.is_wall_visible
+      ? `${text.confidence}: ${Math.round(analysis.confidence * 100)}% (${text.confidenceNote})`
+      : `${text.confidence}: not applicable until a wall is visible (${text.confidenceNote})`, 14, y)
     y += 8
 
     if (Array.isArray(analysisHistory) && analysisHistory.length) {

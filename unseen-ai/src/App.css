@@ -1718,6 +1718,13 @@
   background: linear-gradient(155deg, rgba(13, 34, 64, 0.72), rgba(4, 14, 30, 0.78));
 }
 
+.evidence-insufficient-banner {
+  border-color: rgba(251, 191, 36, 0.48);
+  background: linear-gradient(155deg, rgba(120, 72, 0, 0.32), rgba(30, 22, 6, 0.72));
+}
+.evidence-insufficient-banner h3 { color: #fde68a; }
+.evidence-insufficient-banner p { color: #fde9c8; }
+
 .result-card h3 {
   margin: 0 0 9px;
   color: var(--text-h);

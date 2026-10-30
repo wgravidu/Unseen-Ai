@@ -25,6 +25,7 @@ import {
 } from './local/localEngine.js'
 import { useLanguage } from './i18n/LanguageContext.jsx'
 import { caseToFile, deleteCase as deleteSavedCase, listCases, loadCase, saveCase } from './local/caseStore.js'
+import { hasInsufficientEvidence } from './local/analysisState.js'
 const loadReportGenerator = () => import('./local/report.js')
 import './App.css'
 
@@ -708,9 +709,17 @@ function AnalysisResults({ analysis, roundNo, currentImageUrl, beforeImageUrl, d
         </div>
         <div className="confidence">
           <span>{t('investigation.round')} {roundNo} · {t('investigation.confidence')}</span>
-          <strong>{Math.round(analysis.confidence * 100)}%</strong>
+          <strong>{analysis.is_wall_visible ? `${Math.round(analysis.confidence * 100)}%` : '—'}</strong>
+          {!analysis.is_wall_visible && <span>{t('investigation.notApplicable')}</span>}
         </div>
       </div>
+
+      {hasInsufficientEvidence(analysis) && (
+        <div className="result-card evidence-insufficient-banner" role="status">
+          <h3>{t('investigation.insufficientTitle')}</h3>
+          <p>{!analysis.is_wall_visible ? t('investigation.insufficientNoWall') : t('investigation.insufficientMoreEvidence')}</p>
+        </div>
+      )}
 
       <WhatChangedCard changes={analysis.what_changed} roundNo={roundNo} />
 
@@ -746,7 +755,9 @@ function AnalysisResults({ analysis, roundNo, currentImageUrl, beforeImageUrl, d
       <section className="result-card hypothesis-card">
         <h3>{t('investigation.possibleCauses')}</h3>
         <p className="evidence-label">{t('investigation.hypotheses')}</p>
-        {analysis.possible_causes.length > 0 ? (
+        {!analysis.is_wall_visible ? (
+          <EmptyList>{t('investigation.causesNeedWall')}</EmptyList>
+        ) : analysis.possible_causes.length > 0 ? (
           <ul className="cause-list">
             {analysis.possible_causes.map(({ cause, likelihood }, index) => (
               <li key={`${cause}-${index}`}>
