@@ -31,6 +31,12 @@ export const en = {
       bright: 'Very bright — reduce glare or change angle slightly.',
       lowDetail: 'Low detail — move closer or clean the lens.',
       ready: 'Guide active',
+      blurry: 'Too blurry — hold steady and let the camera focus.',
+      moving: 'Hold steady — keep the phone still for a sharp photo.',
+      closer: 'Move closer — fill the frame with the damaged area.',
+      closerHint: 'Get near enough that the stain or crack fills the cyan frame.',
+      torch: 'Toggle flashlight',
+      captureReady: 'Capture — frame looks good',
     },
     voice: {
       speak: 'Speak answer',

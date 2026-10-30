@@ -2017,6 +2017,126 @@ img, video, canvas, svg { max-width: 100%; }
   .result-card { padding: 24px; }
 }
 
+/* Smart Guided Camera — native-app overlay */
+.camera-live-top {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.camera-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 999px;
+  background: rgba(2, 10, 24, 0.72);
+  color: #cffafe;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  backdrop-filter: blur(10px);
+}
+.camera-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fb7185;
+  box-shadow: 0 0 10px #fb7185;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.camera-torch-button {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  z-index: 4;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(103, 232, 249, 0.34);
+  border-radius: 50%;
+  background: rgba(2, 10, 24, 0.78);
+  color: #cffafe;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+.camera-torch-button.is-on {
+  border-color: rgba(252, 211, 77, 0.75);
+  background: rgba(120, 72, 0, 0.78);
+  color: #fde68a;
+  box-shadow: 0 0 20px rgba(252, 211, 77, 0.32);
+}
+.camera-guide-frame { transition: border-color 250ms ease, box-shadow 250ms ease; }
+.camera-guide-frame.guide-frame-dark,
+.camera-guide-frame.guide-frame-bright { border-color: rgba(252, 211, 77, 0.75); }
+.camera-guide-frame.guide-frame-blurry,
+.camera-guide-frame.guide-frame-moving { border-color: rgba(251, 113, 133, 0.8); }
+.camera-guide-frame.is-ready {
+  border-color: rgba(52, 211, 153, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(2, 8, 23, 0.24), inset 0 0 48px rgba(52, 211, 153, 0.14), 0 0 24px rgba(52, 211, 153, 0.2);
+}
+.camera-guide-card strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.camera-guide-status {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+  animation: guideStatusIn 220ms ease both;
+}
+@keyframes guideStatusIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.camera-guide-status.guide-good { color: #6ee7b7; }
+.camera-guide-status.guide-dark,
+.camera-guide-status.guide-bright,
+.camera-guide-status.guide-closer { color: #fcd34d; }
+.camera-guide-status.guide-blurry,
+.camera-guide-status.guide-moving { color: #fda4af; }
+.camera-meter {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.24);
+}
+.camera-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #67e8f9;
+  transition: width 300ms ease, background 250ms ease;
+}
+.camera-meter-fill.guide-meter-good { background: #34d399; }
+.camera-meter-fill.guide-meter-dark,
+.camera-meter-fill.guide-meter-bright,
+.camera-meter-fill.guide-meter-closer { background: #fbbf24; }
+.camera-meter-fill.guide-meter-blurry,
+.camera-meter-fill.guide-meter-moving { background: #fb7185; }
+.camera-guide-instruction {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+.camera-shutter { transition: box-shadow 250ms ease, filter 250ms ease, transform 250ms ease; }
+.camera-shutter.is-ready {
+  background: linear-gradient(135deg, #059669, #0284c7 58%, #6366f1);
+  box-shadow: 0 14px 36px rgba(5, 150, 105, 0.36), 0 0 0 3px rgba(52, 211, 153, 0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .camera-live-dot, .camera-guide-status { animation: none !important; }
+}
+
 @media (max-width: 375px) {
   :root { font-size: 15px; }
   .app-shell { width: calc(100% - 16px); }
