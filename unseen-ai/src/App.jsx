@@ -533,7 +533,33 @@ function BeforeAfterCompare({ beforeUrl, afterUrl, difference }) {
   const { t } = useLanguage()
   const [position, setPosition] = useState(50)
   const [view, setView] = useState('slider')
+  const frameRef = useRef(null)
+  const draggingRef = useRef(false)
   if (!beforeUrl || !afterUrl) return null
+
+  const updateFromClientX = (clientX) => {
+    const frame = frameRef.current
+    if (!frame) return
+    const rect = frame.getBoundingClientRect()
+    if (!rect.width) return
+    const next = Math.min(96, Math.max(4, ((clientX - rect.left) / rect.width) * 100))
+    setPosition(Math.round(next * 10) / 10)
+  }
+
+  const onPointerDown = (event) => {
+    draggingRef.current = true
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+    updateFromClientX(event.clientX)
+  }
+
+  const onPointerMove = (event) => {
+    if (!draggingRef.current) return
+    updateFromClientX(event.clientX)
+  }
+
+  const stopDragging = () => {
+    draggingRef.current = false
+  }
 
   return (
     <section className="result-card compare-card">
@@ -550,25 +576,38 @@ function BeforeAfterCompare({ beforeUrl, afterUrl, difference }) {
 
       {view === 'slider' ? (
         <>
-          <div className="compare-frame">
-            <img src={beforeUrl} alt={t('compare.previousAlt')} />
+          <div
+            ref={frameRef}
+            className="compare-frame compare-frame-interactive"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={stopDragging}
+            onPointerCancel={stopDragging}
+          >
+            <img className="compare-base-img" src={beforeUrl} alt={t('compare.previousAlt')} draggable={false} />
             <div className="compare-after" style={{ clipPath: `inset(0 0 0 ${position}%)` }}>
-              <img src={afterUrl} alt={t('compare.currentAlt')} />
+              <img src={afterUrl} alt={t('compare.currentAlt')} draggable={false} />
             </div>
             <span className="compare-label compare-label-before">{t('compare.before')}</span>
             <span className="compare-label compare-label-after">{t('compare.after')}</span>
             <span className="compare-divider" style={{ left: `${position}%` }} aria-hidden="true" />
+            <span className="compare-handle" style={{ left: `${position}%` }} aria-hidden="true"><span>↔</span></span>
           </div>
           <label className="compare-slider-label" htmlFor="before-after-slider">
-            {t('compare.position')}
-            <input
-              id="before-after-slider"
-              type="range"
-              min="0"
-              max="100"
-              value={position}
-              onChange={(event) => setPosition(Number(event.target.value))}
-            />
+            {t('compare.position')} · {Math.round(position)}%
+            <span className="compare-range-wrap">
+              <span className="compare-range-fill" style={{ width: `${position}%` }} aria-hidden="true" />
+              <input
+                id="before-after-slider"
+                className="compare-range"
+                type="range"
+                min="0"
+                max="100"
+                value={position}
+                onChange={(event) => setPosition(Number(event.target.value))}
+                aria-label={t('compare.position')}
+              />
+            </span>
           </label>
         </>
       ) : difference ? (
