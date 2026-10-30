@@ -4,7 +4,7 @@ const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg']
 // Heavy on-demand assets (ONNX WASM, transformers, 3D, PDF) are excluded from
 // the versioned shell cache so they don't evict/lock the app shell. Local-AI
 // model/WASM files go in a separate cache that survives shell updates.
-const HEAVY_ASSET = /\.(wasm|mjs)$|\/(ort|transformers|WallVisualization3D|jspdf|html2canvas)[^/]*\.js$/
+const HEAVY_ASSET = /\.(wasm|mjs)$|\/(ort|transformers|WallVisualization3D|jspdf|html2canvas)[^/]*\.js$|\/images\//
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

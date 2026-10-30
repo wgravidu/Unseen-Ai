@@ -6,6 +6,11 @@ import { LanguageProvider } from './i18n/LanguageContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <div className="app-bg" aria-hidden="true">
+      <img className="app-bg-photo app-bg-left" src="/images/lady-left.jpg" alt="" />
+      <img className="app-bg-photo app-bg-right" src="/images/men-right.jpg" alt="" />
+      <div className="app-bg-overlay" />
+    </div>
     <LanguageProvider>
       <App />
     </LanguageProvider>
