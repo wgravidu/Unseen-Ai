@@ -92,10 +92,6 @@
   }
 }
 
-@media (max-width: 375px) {
-  .app-shell { padding: 0 10px 14px; border-radius: 21px; }
-}
-
 .app-shell::before {
   content: '';
   position: fixed;
@@ -2226,15 +2222,40 @@ img, video, canvas, svg { max-width: 100%; }
   .camera-live-dot, .camera-guide-status { animation: none !important; }
 }
 
+/* Mobile header: brand sits left next to the menu, controls stay right. */
+@media (max-width: 760px) {
+  .site-header { gap: 8px; }
+  .header-brand {
+    position: static;
+    transform: none;
+    min-width: 0;
+    margin-right: auto;
+    overflow: hidden;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .header-brand > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .header-actions { flex: 0 0 auto; margin-left: 0; }
+}
+
+@media (max-width: 430px) {
+  .api-status { max-width: 96px; }
+}
+
 @media (max-width: 375px) {
   :root { font-size: 15px; }
+  .header-brand { font-size: 11.5px; letter-spacing: 0.05em; }
+  .header-brand .brand-mark { width: 30px; height: 30px; border-radius: 10px; }
   .app-shell { width: calc(100% - 16px); }
   .page-section, .upload-card, .analysis-panel { padding: 14px; border-radius: 17px; }
   .hero-section { margin: 32px auto 22px; }
   .hero-copy { font-size: 14px; }
   .mode-status { padding: 9px 11px; }
   .site-header { min-height: 60px; }
-  .header-brand { display: none; }
   .api-status { max-width: 82px; font-size: 10.5px; padding: 6px 8px; }
   .language-switch button { min-width: 34px; padding: 6px 6px; }
   .gallery-item figcaption { padding: 7px; }
