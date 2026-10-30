@@ -26,6 +26,8 @@ import {
 import { useLanguage } from './i18n/LanguageContext.jsx'
 import { caseToFile, deleteCase as deleteSavedCase, listCases, loadCase, saveCase } from './local/caseStore.js'
 import { hasInsufficientEvidence } from './local/analysisState.js'
+import { assessPhotoQuality, prepareImagesForApi } from './local/photoQuality.js'
+import { shouldAskForMoreEvidence } from './local/evidenceFlow.js'
 const loadReportGenerator = () => import('./local/report.js')
 import './App.css'
 
@@ -184,8 +186,9 @@ function normalizeHighlightRegions(regions) {
 }
 
 async function requestHighlight(imageFile) {
+  const [preparedImage] = await prepareImagesForApi([imageFile])
   const formData = new FormData()
-  formData.append('image', imageFile)
+  formData.append('image', preparedImage)
   const payload = await postForm('/highlight', formData)
   if (!payload || typeof payload !== 'object' || !Array.isArray(payload.regions)) {
     throw new Error('The highlight server returned an unexpected response.')
@@ -367,6 +370,23 @@ function useVoiceInput(language, onText) {
   }, [isListening, language, onText, stop])
 
   return { isListening, voiceError, toggleVoice: toggle }
+}
+
+function ChatFollowupBubble({ analysis }) {
+  const { t } = useLanguage()
+  if (!shouldAskForMoreEvidence(analysis)) return null
+  const modelInstruction = analysis.next_best_view?.instruction || analysis.followup_request?.text
+  return (
+    <div className="chat-followup-bubble" role="status">
+      <span className="chat-bubble-avatar" aria-hidden="true">U</span>
+      <div>
+        <strong>{t('investigation.lowConfidenceTitle')}</strong>
+        <p>{t('investigation.lowConfidencePrompt')}</p>
+        <p>{t('investigation.lowConfidenceText')}</p>
+        {modelInstruction && <p className="chat-bubble-model-note">{modelInstruction}</p>}
+      </div>
+    </div>
+  )
 }
 
 function FollowupPanel({
@@ -759,7 +779,7 @@ function AnalysisResults({ analysis, roundNo, currentImageUrl, beforeImageUrl, d
           <EmptyList>{t('investigation.causesNeedWall')}</EmptyList>
         ) : analysis.possible_causes.length > 0 ? (
           <ul className="cause-list">
-            {analysis.possible_causes.map(({ cause, likelihood }, index) => (
+            {analysis.possible_causes.slice(0, 3).map(({ cause, likelihood }, index) => (
               <li key={`${cause}-${index}`}>
                 <span>{cause}</span>
                 <span className={`likelihood likelihood-${likelihood}`}>{likelihood} {t('investigation.likelihood')}</span>
@@ -792,7 +812,12 @@ function AnalysisResults({ analysis, roundNo, currentImageUrl, beforeImageUrl, d
           <EmptyList>{t('investigation.noSafeSteps')}</EmptyList>
         )}
       </section>
-      <p className="disclaimer">{t('investigation.disclaimer')}</p>
+      <section className="result-card final-disclaimer-card" aria-label={t('investigation.finalReportTitle')}>
+        <h3>{t('investigation.finalReportTitle')}</h3>
+        <p>{t('investigation.finalDisclaimerSi')}</p>
+        <p>{t('investigation.finalDisclaimerEn')}</p>
+        <p className="disclaimer">{t('investigation.disclaimer')}</p>
+      </section>
     </section>
   )
 }
@@ -814,6 +839,7 @@ function AnalyzeApp() {
   const [file, setFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [analysis, setAnalysis] = useState(null)
+  const [photoQuality, setPhotoQuality] = useState(null)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isFollowupLoading, setIsFollowupLoading] = useState(false)
@@ -886,6 +912,7 @@ function AnalyzeApp() {
     setLocalHistory([])
     setLocalStatus({ phase: 'idle' })
     setError('')
+    setPhotoQuality(null)
     setRoundNo(1)
     setNotes([])
     setAnswer('')
@@ -924,6 +951,7 @@ function AnalyzeApp() {
     setLocalHistory([])
     setLocalStatus({ phase: 'idle' })
     setError('')
+    setPhotoQuality(null)
     setRoundNo(1)
     setNotes([])
     setAnswer('')
@@ -1051,10 +1079,15 @@ function AnalyzeApp() {
 
     const submitFile = file
     const submitPreviewUrl = previewUrl
+    const quality = await assessPhotoQuality(submitFile)
     resetInvestigation()
     setFile(submitFile)
     previewUrlRef.current = submitPreviewUrl
     setPreviewUrl(submitPreviewUrl)
+    setPhotoQuality(quality)
+    if (quality.status === 'insufficient_evidence') {
+      return
+    }
     setIsLoading(true)
     try {
       let payload
@@ -1066,8 +1099,9 @@ function AnalyzeApp() {
           1,
         )
       } else {
+        const [preparedImage] = await prepareImagesForApi([submitFile])
         const formData = new FormData()
-        formData.append('image', submitFile)
+        formData.append('image', preparedImage)
         payload = await postAnalysisForm('/analyze', formData)
       }
       setAnalysis(payload)
@@ -1115,20 +1149,24 @@ function AnalyzeApp() {
 
     const trimmedAnswer = answer.trim()
     const nextNotes = trimmedAnswer ? [...notes, trimmedAnswer] : notes
-    const imagesToSend = followupFile ? [followupFile] : file ? [file] : []
+    const priorFiles = roundImages.map((round) => round.file).filter(Boolean)
+    const imagesToSend = followupFile
+      ? [...priorFiles.slice(-2), followupFile]
+      : priorFiles.length ? priorFiles.slice(-3) : file ? [file] : []
+    const currentUploadFile = followupFile || imagesToSend[imagesToSend.length - 1]
     setIsFollowupLoading(true)
 
     try {
       const payload = await investigateWithImages(imagesToSend, nextNotes, analysis, roundNo + 1)
       setAnalysis(payload)
-      const currentRoundImage = { file: imagesToSend[0], url: followupPreviewUrl || previewUrl }
+      const currentRoundImage = { file: currentUploadFile, url: followupPreviewUrl || previewUrl }
       setResultImageUrl(currentRoundImage.url)
       setRoundImages((current) => [...current, currentRoundImage])
       const previousRoundFile = roundImages[roundImages.length - 1]?.file || file
-      await updateDifference(previousRoundFile, imagesToSend[0])
+      await updateDifference(previousRoundFile, currentUploadFile)
       const nextRound = roundNo + 1
       setRoundNo(nextRound)
-      recordInvestigation(payload, nextRound, imagesToSend[0]?.name || 'Follow-up image')
+      recordInvestigation(payload, nextRound, currentUploadFile?.name || 'Follow-up image')
       setNotes(nextNotes)
       setAnswer('')
       if (followupPreviewUrlRef.current) URL.revokeObjectURL(followupPreviewUrlRef.current)
@@ -1143,8 +1181,9 @@ function AnalyzeApp() {
   }
 
   async function investigateWithImages(images, notesValue, previousAnalysis, nextRound) {
+    const preparedImages = await prepareImagesForApi(images.filter(Boolean))
     const formData = new FormData()
-    images.forEach((image) => formData.append('images', image))
+    preparedImages.forEach((image) => formData.append('images', image))
     formData.append('notes', JSON.stringify(notesValue))
     formData.append('previous', previousAnalysis ? JSON.stringify(previousAnalysis) : '')
     formData.append('round_no', String(nextRound))
@@ -1413,7 +1452,38 @@ function AnalyzeApp() {
         </form>
 
         <div className="analysis-panel" aria-live="polite">
-          {isLoading ? (
+          {mode === 'api' && photoQuality?.status === 'insufficient_evidence' && !analysis ? (
+            <div className="insufficient-panel" role="status">
+              <p className="eyebrow">{t('investigation.insufficientStatus')}</p>
+              <h2>{t('investigation.insufficientTitle')}</h2>
+              <div className="chat-followup-bubble insufficient-chat-bubble">
+                <span className="chat-bubble-avatar" aria-hidden="true">U</span>
+                <div>
+                  <strong>{t('investigation.insufficientMessage')}</strong>
+                  <p>
+                    {photoQuality.reason === 'dark'
+                      ? t('investigation.insufficientReasonDark')
+                      : photoQuality.reason === 'bright'
+                        ? t('investigation.insufficientReasonBright')
+                        : photoQuality.reason === 'tooFar'
+                          ? t('investigation.insufficientReasonTooFar')
+                          : t('investigation.insufficientReasonBlurry')}
+                  </p>
+                  <p className="quality-metrics">
+                    {t('investigation.confidence')}: {t('investigation.notApplicable')} · {photoQuality.brightness}/255 · detail {photoQuality.detail}
+                  </p>
+                </div>
+              </div>
+              <button
+                className="analyze-button retry-photo-button"
+                type="button"
+                onClick={() => document.getElementById('wall-image')?.click()}
+              >
+                {t('investigation.retryPhoto')}
+              </button>
+              <p className="privacy-note">{t('investigation.insufficientReasonUnknown')}</p>
+            </div>
+          ) : isLoading ? (
             <div className="empty-state loading-state" role="status">
               <span className="loading-indicator" aria-hidden="true" />
               <h2>{mode === 'local' ? t('investigation.analyzingOnDevice') : t('investigation.takingLook')}</h2>
@@ -1505,6 +1575,7 @@ function AnalyzeApp() {
                 </div>
               ) : (
                 <>
+                  <ChatFollowupBubble analysis={analysis} />
                   <FollowupPanel
                     analysis={analysis}
                     answer={answer}
@@ -1683,8 +1754,8 @@ function AnalyzeApp() {
                     const focus = getFocusAreaStyle(region.focus_area)
                     if (!focus) return null
                     return (
-                      <div key={region.id} className="highlight-box" style={focus.style}>
-                        <span>{region.label}{region.confidence !== null ? ` · ${Math.round(region.confidence * 100)}%` : ''}</span>
+                      <div key={region.id} className="highlight-box sam-focus-box" style={focus.style}>
+                        <span>{t('highlight.aiFocusRegion')} · {region.label}{region.confidence !== null ? ` · ${Math.round(region.confidence * 100)}%` : ''}</span>
                       </div>
                     )
                   })}
@@ -1714,6 +1785,7 @@ function AnalyzeApp() {
                       <p className="changed-note">{t('highlight.noBox')}</p>
                     )}
                     <p className="changed-note">{t('highlight.scoreNote')}</p>
+                    <p className="changed-note">{t('highlight.samFallback')}</p>
                   </div>
                 ) : (
                   <p className="privacy-note">{t('highlight.noRequest')}</p>

@@ -78,8 +78,8 @@ async def prepare_image(upload: UploadFile):
                 source.verify()
             with Image.open(io.BytesIO(raw)) as source:
                 im=ImageOps.exif_transpose(source).convert('RGB')
-                im.thumbnail((1600,1600))
-                buf=io.BytesIO(); im.save(buf,format='JPEG',quality=85)
+                im.thumbnail((1024,1024))
+                buf=io.BytesIO(); im.save(buf,format='JPEG',quality=82)
                 return buf.getvalue()
         return await run_in_threadpool(convert)
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as exc:

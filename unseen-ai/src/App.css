@@ -1725,6 +1725,70 @@
 .evidence-insufficient-banner h3 { color: #fde68a; }
 .evidence-insufficient-banner p { color: #fde9c8; }
 
+.final-disclaimer-card {
+  border-color: rgba(52, 211, 153, 0.34);
+  background: linear-gradient(155deg, rgba(6, 78, 59, 0.28), rgba(4, 20, 30, 0.8));
+}
+
+.chat-followup-bubble {
+  display: flex;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 15px;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  border-radius: 18px 18px 18px 6px;
+  background: linear-gradient(150deg, rgba(120, 72, 0, 0.22), rgba(8, 25, 47, 0.88));
+  color: var(--text);
+}
+
+.chat-bubble-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a5f3fc, #22d3ee 55%, #818cf8);
+  color: #03131f;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+}
+
+.chat-followup-bubble strong { color: #fde68a; }
+.chat-followup-bubble p { margin-top: 4px; font-size: 13px; line-height: 1.55; }
+.chat-bubble-model-note { color: var(--cyan-soft) !important; }
+
+.insufficient-panel {
+  display: grid;
+  gap: 15px;
+  padding: 6px;
+}
+.insufficient-panel h2 { max-width: 520px; }
+.insufficient-chat-bubble { margin-top: 2px; }
+.quality-metrics { color: var(--cyan-soft) !important; font-size: 12px !important; }
+.retry-photo-button { width: 100%; }
+
+.sam-focus-box {
+  border-color: #fbbf24;
+  background: radial-gradient(circle at center, rgba(248, 113, 113, 0.2), rgba(251, 191, 36, 0.14) 58%, rgba(34, 211, 238, 0.08));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.72), 0 0 26px rgba(248, 113, 113, 0.55), inset 0 0 28px rgba(251, 191, 36, 0.24);
+  animation: samFocusPulse 1.45s ease-in-out infinite;
+}
+.sam-focus-box span {
+  background: linear-gradient(90deg, rgba(127, 29, 29, 0.94), rgba(146, 64, 14, 0.94));
+  color: #fff7ed;
+  max-width: calc(100% - 10px);
+  white-space: normal;
+}
+@keyframes samFocusPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.72), 0 0 16px rgba(248,113,113,0.38), inset 0 0 18px rgba(251,191,36,0.16); }
+  50% { box-shadow: 0 0 0 1px rgba(255,255,255,0.86), 0 0 34px rgba(248,113,113,0.68), inset 0 0 34px rgba(251,191,36,0.28); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sam-focus-box { animation: none !important; }
+}
+
 .result-card h3 {
   margin: 0 0 9px;
   color: var(--text-h);

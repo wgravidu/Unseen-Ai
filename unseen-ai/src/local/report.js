@@ -10,7 +10,7 @@ function listOrFallback(items, fallback) {
 export function getApiCausesForReport(analysis, text) {
   if (!analysis?.is_wall_visible) return [text.causesNeedWall]
   return analysis.possible_causes.length
-    ? analysis.possible_causes.map((cause) => `${cause.cause} - ${cause.likelihood} ${text.likelihood}`)
+    ? analysis.possible_causes.slice(0, 3).map((cause) => `${cause.cause} - ${cause.likelihood} ${text.likelihood}`)
     : [text.noCauses]
 }
 
@@ -78,6 +78,8 @@ const REPORT_TEXT = {
     causesNeedWall: 'Possible causes are not assessed until a wall is visible in the photo.',
     status: 'Assessment Status',
     insufficient: 'Evidence insufficient - no wall condition or cause is confirmed by this photo. Add the requested evidence before relying on any hypothesis.',
+    safetySi: 'Me AI suggestion ekak pamanai, nivaeradi nigamanaya sandaha vruththikayeku hamuvanna.',
+    safetyEn: 'This is AI suggestion only, consult a professional',
     likelihood: 'likelihood',
     evidence: 'Evidence Required',
     nextPhoto: 'Next photo',
@@ -139,6 +141,8 @@ const REPORT_TEXT = {
     causesNeedWall: 'Possible causes are not assessed until a wall is visible in the photo.',
     status: 'Assessment Status',
     insufficient: 'Evidence insufficient - no wall condition or cause is confirmed by this photo. Add the requested evidence before relying on any hypothesis.',
+    safetySi: 'Me AI suggestion ekak pamanai, nivaeradi nigamanaya sandaha vruththikayeku hamuvanna.',
+    safetyEn: 'This is AI suggestion only, consult a professional',
     likelihood: 'likelihood',
     evidence: 'Evidence Required',
     nextPhoto: 'Next photo',
@@ -317,6 +321,21 @@ export async function generateInvestigationReport({
   doc.setFontSize(9.5)
   doc.setTextColor(30, 41, 59)
   y = addWrappedText(doc, text.accuracy, 14, y, 182, 5)
+
+  if (y > 246) {
+    doc.addPage()
+    y = 16
+  }
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(8, 145, 178)
+  doc.text('Safety Disclaimer', 14, y)
+  y += 6
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(30, 41, 59)
+  y = addWrappedText(doc, text.safetySi, 14, y, 182, 5)
+  y = addWrappedText(doc, text.safetyEn, 14, y + 1, 182, 5)
 
   doc.setFontSize(8)
   doc.setTextColor(100, 116, 139)
