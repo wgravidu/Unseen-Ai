@@ -1,0 +1,26 @@
+⚠️ One honest gap: Automatic Damage Highlight is wired to /highlight, but your backend still returns not_configured with zero regions — so no boxes are drawn yet. Making this real is the #1 next step.
+
+🔥 Best future features to add (ranked)
+#	Feature	What the user sees	Impact	Effort
+1	Real Damage Highlight	Glowing animated boxes/mask over the actual stain area on the photo	⭐⭐⭐⭐⭐	Medium
+2	Smart Guided Camera	Live overlay frame, blur/dark/too-close warnings before capture	⭐⭐⭐⭐	Medium
+3	Before / After Compare	Slider + difference heatmap between round 1 and round 2 photos, measured % change	⭐⭐⭐⭐	Medium
+4	One-click PDF Report	Downloadable investigation report: photos, observations, causes, next steps, disclaimer	⭐⭐⭐⭐	Small
+5	Saved Cases + Timeline	Investigations saved in the browser (IndexedDB), reopen anytime, confidence-over-rounds chart	⭐⭐⭐	Medium
+6	Sinhala / English / Tamil + Voice Notes	Speak your answer instead of typing; UI in your language	⭐⭐⭐	Medium
+🧠 Advanced AI features (research level)
+Custom-trained wall-stain segmentation model — label your own dataset of damp/mold/crack photos, fine-tune a small model, export to ONNX. This turns Local AI from general classifier into real wall-damage detection — the strongest research claim for judging.
+AR Next-Best-View guide — while the camera is open, an on-screen frame shows exactly where to point, using the AI’s focus_area + distance/angle instructions.
+Scale measurement — user places a coin/ruler in frame; app estimates stain size in cm. Only with a real reference object — never guessed.
+Change-heat map with image alignment — align two photos of the same wall, then heat-map where pixels actually changed between visits.
+🚀 Future platform features
+PWA / offline install — “Add to Home Screen”, works without internet after first model download.
+Properties & rooms — organize cases by house → room → wall, with status (monitoring / resolved / needs professional).
+Professional referral — share a report link/QR with a contractor or inspector.
+Optional accounts + cloud sync — only if users want multi-device access; keep local-first privacy.
+IoT moisture sensors (long-term) — combine photo evidence with real humidity/moisture-meter readings.
+🎯 My recommended build order
+Phase A (demo-winning): Real Damage Highlight → Before/After Compare → PDF Report
+Phase B (product): Guided Camera → Saved Cases/Timeline → PWA offline → Sinhala voice
+Phase C (research/future): Custom wall-stain model → AR guide → IoT sensors
+If you want, reply with “build Phase A” (or a feature name like “Real Damage Highlight”) and I’ll inspect the exact code path and implement it next — no rebuild, backend contract preserved.

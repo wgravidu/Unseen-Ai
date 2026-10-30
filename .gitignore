@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+
+# Node
+node_modules/
+dist/
+
+# Local scratch / test images (keep test_meta.py if useful, ignore large photos)
+wall.jpg
+
+# OS / editor
+.DS_Store
+Thumbs.db

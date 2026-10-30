@@ -1,0 +1,18 @@
+{
+  "name": "UNSEEN AI",
+  "short_name": "UNSEEN AI",
+  "description": "AI-powered visual wall investigation with API AI and experimental Local AI.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
