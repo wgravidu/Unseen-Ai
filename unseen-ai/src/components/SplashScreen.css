@@ -116,14 +116,19 @@
   50% { transform: translateX(15%); opacity: 0.9; }
 }
 
+/* Extra bottom padding creates space for the percent pill under the ring. */
 .splash-stage {
   position: relative;
   z-index: 1;
   display: grid;
   justify-items: center;
   gap: 22px;
-  padding: 24px;
+  padding: 24px 24px 34px;
   text-align: center;
+}
+
+.splash-title-block {
+  margin-top: 12px;
 }
 
 .splash-ring-wrap {
@@ -139,6 +144,7 @@
   inset: 0;
   display: grid;
   place-items: center;
+  overflow: visible;
 }
 
 .intro-ring svg {
@@ -163,17 +169,28 @@
 
 .ring-percent {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding-top: 148px;
-  color: #cffafe;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-shadow: 0 0 14px rgba(34, 211, 238, 0.65);
+  left: 50%;
+  bottom: -38px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  padding: 6px 12px;
+  border: 1px solid rgba(103, 232, 249, 0.34);
+  border-radius: 999px;
+  background: rgba(3, 18, 34, 0.82);
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.16), inset 0 0 18px rgba(34, 211, 238, 0.05);
+  color: #ecfeff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
+  white-space: nowrap;
+  z-index: 3;
 }
 
 .splash-logo-ring {
