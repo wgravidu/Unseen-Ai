@@ -404,10 +404,12 @@ function FollowupPanel({
   followupFile,
   followupPreviewUrl,
   onFollowupFileChange,
+  onFollowupCameraCapture,
   onSubmitFollowup,
   isLoading,
   isFollowupLoading,
 }) {
+  const [photoSource, setPhotoSource] = useState('gallery')
   const { t, language } = useLanguage()
   const appendVoiceText = useCallback((transcript) => {
     onAnswerChange(answer ? `${answer} ${transcript}` : transcript)
@@ -451,24 +453,61 @@ function FollowupPanel({
         )}
       </div>
 
-      <label className="followup-dropzone" htmlFor="followup-image">
-        {followupPreviewUrl ? (
-          <img className="upload-preview" src={followupPreviewUrl} alt={t('investigation.addNextPhoto')} />
-        ) : (
-          <span className="upload-placeholder" aria-hidden="true">
-            <span className="upload-icon">+</span>
-            <span>{t('investigation.addNextPhoto')}</span>
-          </span>
-        )}
-        <input
-          id="followup-image"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={onFollowupFileChange}
+      <p className="answer-label">{t('investigation.photoSource')}</p>
+      <div className="photo-source-toggle" role="group" aria-label={t('investigation.photoSource')}>
+        <button
+          type="button"
+          className={photoSource === 'camera' ? 'is-active' : ''}
+          onClick={() => setPhotoSource('camera')}
           disabled={isLoading || isFollowupLoading}
-        />
-      </label>
-      {followupFile && <p className="selected-file">{followupFile.name}</p>}
+          aria-pressed={photoSource === 'camera'}
+        >
+          <Camera size={16} aria-hidden="true" /> {t('investigation.useCamera')}
+        </button>
+        <button
+          type="button"
+          className={photoSource === 'gallery' ? 'is-active' : ''}
+          onClick={() => setPhotoSource('gallery')}
+          disabled={isLoading || isFollowupLoading}
+          aria-pressed={photoSource === 'gallery'}
+        >
+          <Images size={16} aria-hidden="true" /> {t('investigation.useGallery')}
+        </button>
+      </div>
+
+      {photoSource === 'camera' ? (
+        <div className="followup-camera-block">
+          <CameraCapture
+            onConfirm={(capturedFile) => {
+              onFollowupCameraCapture(capturedFile)
+              setPhotoSource('gallery')
+            }}
+            disabled={isLoading || isFollowupLoading}
+          />
+          {followupFile && <p className="selected-file">{followupFile.name} · {t('investigation.cameraCaptured')}</p>}
+        </div>
+      ) : (
+        <>
+          <label className="followup-dropzone" htmlFor="followup-image">
+            {followupPreviewUrl ? (
+              <img className="upload-preview" src={followupPreviewUrl} alt={t('investigation.addNextPhoto')} />
+            ) : (
+              <span className="upload-placeholder" aria-hidden="true">
+                <span className="upload-icon">+</span>
+                <span>{t('investigation.addNextPhoto')}</span>
+              </span>
+            )}
+            <input
+              id="followup-image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={onFollowupFileChange}
+              disabled={isLoading || isFollowupLoading}
+            />
+          </label>
+          {followupFile && <p className="selected-file">{followupFile.name}</p>}
+        </>
+      )}
 
       <button
         className="analyze-button followup-button"
@@ -989,6 +1028,10 @@ function AnalyzeApp() {
   function handleFollowupFileChange(event) {
     const selectedFile = event.currentTarget.files?.[0] ?? null
     event.currentTarget.value = ''
+    setFollowupImageFile(selectedFile)
+  }
+
+  function setFollowupImageFile(selectedFile) {
     if (followupPreviewUrlRef.current) URL.revokeObjectURL(followupPreviewUrlRef.current)
     followupPreviewUrlRef.current = selectedFile ? URL.createObjectURL(selectedFile) : null
     setFollowupPreviewUrl(followupPreviewUrlRef.current || '')
@@ -1591,6 +1634,7 @@ function AnalyzeApp() {
                     followupFile={followupFile}
                     followupPreviewUrl={followupPreviewUrl}
                     onFollowupFileChange={handleFollowupFileChange}
+                    onFollowupCameraCapture={setFollowupImageFile}
                     onSubmitFollowup={handleFollowupSubmit}
                     isLoading={isLoading}
                     isFollowupLoading={isFollowupLoading}
