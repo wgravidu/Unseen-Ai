@@ -151,11 +151,12 @@ This project does **not** hide the tools or AI assistance used to build it:
 
 - **Meta AI API / Muse Spark 1.3** powers the submitted app at runtime for photo
   analysis, multi-round investigations, Next Best View guidance, and damage highlights.
-- **GitHub Copilot in Visual Studio Code** was used during development as an AI coding
-  assistant for implementation help, debugging, documentation, demo-material preparation,
-  Git operations, and deployment work. Recent commit messages include
-  `Co-authored-by: Copilot`, which is why GitHub shows Copilot in the repository's
-  Contributors list. This coding assistance was not a runtime input to the app.
+- **GitHub Copilot in Visual Studio Code**, with **Muse Wonder** selected as the chat
+  session model, was used during development as an AI coding assistant for implementation
+  help, debugging, documentation, demo-material preparation, Git operations, and
+  deployment work. Recent commit messages include `Co-authored-by: Copilot`, which is
+  why GitHub shows Copilot in the repository's Contributors list. This coding assistance
+  was not a runtime input to the app.
 - **GitHub** hosts the source code, demo videos, and project documentation.
 - **Render** hosts the live demo using the free tier.
 - **Other development and delivery tools** include Vite, npm, Python, Pillow, Pydantic,
