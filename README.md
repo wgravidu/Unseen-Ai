@@ -151,6 +151,9 @@ This project does **not** hide the tools or AI assistance used to build it:
 
 - **Meta AI API / Muse Spark 1.3** powers the submitted app at runtime for photo
   analysis, multi-round investigations, Next Best View guidance, and damage highlights.
+  This uses the submitter's **private Meta AI API key** (the key itself is stored only in
+  server-side environment variables and is **not** committed to this repository), funded
+  by **US$150 in complimentary Meta API credits** received for this project.
 - **GitHub Copilot in Visual Studio Code**, with **Muse Wonder** selected as the chat
   session model, was used during development as an AI coding assistant for implementation
   help, debugging, documentation, demo-material preparation, Git operations, and
