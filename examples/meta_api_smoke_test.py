@@ -1,3 +1,12 @@
+"""One-off smoke test for the Meta AI API (not part of the app).
+
+Usage:
+    $env:MODEL_API_KEY = "<your key>"   # PowerShell
+    python examples/meta_api_smoke_test.py
+
+Sends the repo's sample wall.jpg to Muse Spark and prints the raw reply.
+Use it to verify a key/model quickly without starting the FastAPI backend.
+"""
 import os, base64
 from openai import OpenAI
 
