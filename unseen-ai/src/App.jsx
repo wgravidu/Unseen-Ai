@@ -75,7 +75,9 @@ const API_BASE_URL = resolveApiBaseUrl(
   typeof window !== 'undefined' ? window.location : null,
 )
 
-if (typeof window !== 'undefined') {
+// Dev-only diagnostics (kept out of production bundles; the API URL is also
+// visible in Settings inside the app, so nothing is lost for debugging).
+if (import.meta.env.DEV && typeof window !== 'undefined') {
   console.log(`UNSEEN AI Local: http://${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'localhost' : window.location.hostname}:5173`)
   console.log(`UNSEEN AI Network: http://${window.location.hostname}:5173 - Open this on mobile`)
   console.log(`UNSEEN AI API: ${API_BASE_URL}`)

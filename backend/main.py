@@ -280,9 +280,12 @@ def parse_analysis(content):
             raise ValueError('Missing follow-up or next_best_view')
         return result
     except (ValueError, TypeError, ValidationError) as exc:
-        log.warning('Invalid model response: %s',str(exc)[:300])
-        log.warning('Raw content: %s', content[:500])
-        log.warning('Raw tail: %s', content[-500:])
+        # Never log raw model output: it can echo user notes/photo descriptions.
+        # Length + error type is enough to debug schema drift safely.
+        log.warning(
+            'Invalid model response: %s (content_type=%s, length=%d)',
+            str(exc)[:300], type(content).__name__, len(content) if content else 0,
+        )
         raise HTTPException(502,'AI returned an invalid structured response; please retry') from exc
 
 def ask_ai(content):
@@ -452,8 +455,10 @@ def parse_highlight(content):
     except HTTPException:
         raise
     except (ValueError, TypeError, ValidationError) as exc:
-        log.warning('Invalid highlight response: %s', str(exc)[:300])
-        log.warning('Highlight raw content: %s', content[:500])
+        log.warning(
+            'Invalid highlight response: %s (content_type=%s, length=%d)',
+            str(exc)[:300], type(content).__name__, len(content) if content else 0,
+        )
         raise HTTPException(502, 'AI returned an invalid highlight response; please retry') from exc
 
 def ask_highlight_ai(content):
