@@ -120,8 +120,12 @@ npm run dev
   cost no API credits.
 - **Rate limits (public demo):** `/analyze` and `/investigate` allow 6 requests
   per minute per IP; `/highlight` allows 10 per minute. Excess requests receive
-  HTTP 429 with a "wait a minute" message. This protects the submitter's private
-  Meta API key and the complimentary credits funding the demo.
+  HTTP 429 with a "wait a minute" message. A second, shared ceiling (200/hour
+  for analysis, 300/hour for highlights) counts every call regardless of the
+  claimed client IP, so rotating spoofed `X-Forwarded-For` values cannot drain
+  the credits either. Browser access is additionally restricted by CORS to the
+  exact frontend origin. This protects the submitter's private Meta API key and
+  the complimentary credits funding the demo.
 - **Timeouts:** The frontend aborts AI calls after 150 seconds and offers a
   Cancel button with an elapsed-time indicator.
 
