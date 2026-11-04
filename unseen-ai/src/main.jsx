@@ -7,13 +7,13 @@ import { LanguageProvider } from './i18n/LanguageContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <div className="app-bg" aria-hidden="true">
-      <img className="app-bg-photo app-bg-left" src="/images/lady-left.jpg" alt="" />
-      <img className="app-bg-photo app-bg-right" src="/images/men-right.jpg" alt="" />
+      <img className="app-bg-photo app-bg-left" src="/images/lady-left.webp" alt="" />
+      <img className="app-bg-photo app-bg-right" src="/images/men-right.webp" alt="" />
       <div className="app-bg-overlay" />
     </div>
     <div className="mobile-hero" aria-hidden="true">
-      <img className="mobile-hero-photo mobile-hero-left" src="/images/lady-left.jpg" alt="" />
-      <img className="mobile-hero-photo mobile-hero-right" src="/images/men-right.jpg" alt="" />
+      <img className="mobile-hero-photo mobile-hero-left" src="/images/lady-left.webp" alt="" />
+      <img className="mobile-hero-photo mobile-hero-right" src="/images/men-right.webp" alt="" />
       <div className="mobile-hero-fade" />
     </div>
     <LanguageProvider>

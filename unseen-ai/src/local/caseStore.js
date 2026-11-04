@@ -57,7 +57,8 @@ export async function saveCase(record) {
     title: record.title || record.imageFile?.name || 'UNSEEN AI case',
     mode: record.mode,
     roundNo: record.roundNo,
-    createdAt: new Date().toISOString(),
+    // Preserve the original timestamp when restoring (e.g. Undo delete passes it back).
+    createdAt: record.createdAt || new Date().toISOString(),
     analysis: record.analysis || null,
     localResult: record.localResult || null,
     analysisHistory: record.analysisHistory || [],

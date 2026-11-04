@@ -1602,6 +1602,17 @@
   font-size: 14px;
 }
 
+.loading-elapsed {
+  max-width: 370px;
+  margin-top: 10px;
+  color: var(--muted, #94a3b8);
+  font-size: 13px;
+}
+
+.cancel-request-button {
+  margin-top: 14px;
+}
+
 .empty-orbit {
   display: grid;
   width: 72px;

@@ -135,10 +135,28 @@ function isValidImageFile(candidate) {
   )
 }
 
-async function postForm(path, formData) {
+// Meta AI calls can take 30-90s. Abort after 150s so a hung request never
+// spins forever, and let the user cancel (the loading UI offers a Cancel button
+// wired to the same AbortController via window.__unseenCancelRequest).
+export const REQUEST_TIMEOUT_MS = 150_000
+
+export function createRequestSignal() {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(new Error('timeout')), REQUEST_TIMEOUT_MS)
+  return {
+    signal: controller.signal,
+    cancel: () => controller.abort(new Error('cancelled')),
+    cleanup: () => window.clearTimeout(timer),
+    isTimeout: () => controller.signal.aborted && controller.signal.reason?.message === 'timeout',
+    isCancelled: () => controller.signal.aborted && controller.signal.reason?.message === 'cancelled',
+  }
+}
+
+async function postForm(path, formData, requestControl) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
     body: formData,
+    signal: requestControl?.signal,
   })
   let payload
   try {
@@ -157,8 +175,8 @@ async function postForm(path, formData) {
   return payload
 }
 
-async function postAnalysisForm(path, formData) {
-  const payload = await postForm(path, formData)
+async function postAnalysisForm(path, formData, requestControl) {
+  const payload = await postForm(path, formData, requestControl)
   if (!isAnalysisPayload(payload)) {
     throw new Error('The analysis server returned data that does not match the expected analysis format.')
   }
@@ -193,11 +211,11 @@ function normalizeHighlightRegions(regions) {
     .filter(Boolean)
 }
 
-async function requestHighlight(imageFile) {
+async function requestHighlight(imageFile, requestControl) {
   const [preparedImage] = await prepareImagesForApi([imageFile])
   const formData = new FormData()
   formData.append('image', preparedImage)
-  const payload = await postForm('/highlight', formData)
+  const payload = await postForm('/highlight', formData, requestControl)
   if (!payload || typeof payload !== 'object' || !Array.isArray(payload.regions)) {
     throw new Error('The highlight server returned an unexpected response.')
   }
@@ -210,7 +228,11 @@ async function requestHighlight(imageFile) {
   }
 }
 
-function toRequestError(requestError) {
+function toRequestError(requestError, requestControl) {
+  if (requestControl?.isCancelled()) return 'Request cancelled. You can try again when ready.'
+  if (requestControl?.isTimeout() || requestError?.name === 'TimeoutError') {
+    return 'The AI took too long to respond (over 2 minutes). Check your connection and try again — a clearer, closer photo often responds faster.'
+  }
   if (requestError instanceof TypeError) {
     return `Could not reach the analysis server at ${API_BASE_URL}. Check that FastAPI is running and VITE_API_BASE_URL is correct.`
   }
@@ -929,6 +951,38 @@ function AnalyzeApp() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isFollowupLoading, setIsFollowupLoading] = useState(false)
+  const [requestSeconds, setRequestSeconds] = useState(0)
+  const activeRequestRef = useRef(null)
+
+  // Tracks elapsed time while a request runs so the loading UI can set
+  // expectations ("usually 20-60s") and offer a working Cancel button.
+  // Interval-only updates (no synchronous setState in the effect body).
+  useEffect(() => {
+    if (!isLoading && !isFollowupLoading && !highlightLoading) return undefined
+    const startedAt = Date.now()
+    const id = window.setInterval(() => {
+      setRequestSeconds(Math.floor((Date.now() - startedAt) / 1000))
+    }, 500)
+    return () => {
+      window.clearInterval(id)
+      setRequestSeconds(0)
+    }
+  }, [isLoading, isFollowupLoading, highlightLoading])
+
+  function beginRequest() {
+    const control = createRequestSignal()
+    activeRequestRef.current = control
+    return control
+  }
+
+  function endRequest(control) {
+    control?.cleanup()
+    if (activeRequestRef.current === control) activeRequestRef.current = null
+  }
+
+  function cancelActiveRequest() {
+    activeRequestRef.current?.cancel()
+  }
   const [roundNo, setRoundNo] = useState(1)
   const [notes, setNotes] = useState([])
   const [answer, setAnswer] = useState('')
@@ -1179,6 +1233,7 @@ function AnalyzeApp() {
       return
     }
     setIsLoading(true)
+    const control = beginRequest()
     try {
       let payload
       if (galleryItems.length > 1 && galleryItems.some((item) => item.file === submitFile)) {
@@ -1187,12 +1242,13 @@ function AnalyzeApp() {
           [],
           null,
           1,
+          control,
         )
       } else {
         const [preparedImage] = await prepareImagesForApi([submitFile])
         const formData = new FormData()
         formData.append('image', preparedImage)
-        payload = await postAnalysisForm('/analyze', formData)
+        payload = await postAnalysisForm('/analyze', formData, control)
       }
       setAnalysis(payload)
       setResultImageUrl(submitPreviewUrl)
@@ -1201,8 +1257,10 @@ function AnalyzeApp() {
       setRoundNo(1)
       recordInvestigation(payload, 1, submitFile.name)
     } catch (requestError) {
-      setError(toRequestError(requestError))
+      if (!control.isCancelled()) setError(toRequestError(requestError, control))
+      else setError(toRequestError(requestError, control))
     } finally {
+      endRequest(control)
       setIsLoading(false)
     }
   }
@@ -1245,9 +1303,10 @@ function AnalyzeApp() {
       : priorFiles.length ? priorFiles.slice(-3) : file ? [file] : []
     const currentUploadFile = followupFile || imagesToSend[imagesToSend.length - 1]
     setIsFollowupLoading(true)
+    const control = beginRequest()
 
     try {
-      const payload = await investigateWithImages(imagesToSend, nextNotes, analysis, roundNo + 1)
+      const payload = await investigateWithImages(imagesToSend, nextNotes, analysis, roundNo + 1, control)
       setAnalysis(payload)
       const currentRoundImage = { file: currentUploadFile, url: followupPreviewUrl || previewUrl }
       setResultImageUrl(currentRoundImage.url)
@@ -1264,20 +1323,21 @@ function AnalyzeApp() {
       setFollowupPreviewUrl('')
       setFollowupFile(null)
     } catch (requestError) {
-      setError(toRequestError(requestError))
+      setError(toRequestError(requestError, control))
     } finally {
+      endRequest(control)
       setIsFollowupLoading(false)
     }
   }
 
-  async function investigateWithImages(images, notesValue, previousAnalysis, nextRound) {
+  async function investigateWithImages(images, notesValue, previousAnalysis, nextRound, requestControl) {
     const preparedImages = await prepareImagesForApi(images.filter(Boolean))
     const formData = new FormData()
     preparedImages.forEach((image) => formData.append('images', image))
     formData.append('notes', JSON.stringify(notesValue))
     formData.append('previous', previousAnalysis ? JSON.stringify(previousAnalysis) : '')
     formData.append('round_no', String(nextRound))
-    return postAnalysisForm('/investigate', formData)
+    return postAnalysisForm('/investigate', formData, requestControl)
   }
 
   function recordInvestigation(payload, round, imageName) {
@@ -1343,8 +1403,38 @@ function AnalyzeApp() {
     setCaseStatus(t('cases.saved'))
   }
 
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
+  const [lastDeletedCase, setLastDeletedCase] = useState(null)
+  const undoTimerRef = useRef(null)
+
   async function handleDeleteCase(caseId) {
+    // Two-step delete: first click arms the button, second click confirms.
+    // After deletion an Undo action restores the exact saved record for 8s.
+    if (pendingDeleteId !== caseId) {
+      setPendingDeleteId(caseId)
+      window.setTimeout(() => {
+        setPendingDeleteId((current) => (current === caseId ? null : current))
+      }, 4000)
+      return
+    }
+    setPendingDeleteId(null)
+    const snapshot = await loadCase(caseId)
     await deleteSavedCase(caseId)
+    await refreshSavedCases()
+    if (snapshot) {
+      setLastDeletedCase(snapshot)
+      if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current)
+      undoTimerRef.current = window.setTimeout(() => setLastDeletedCase(null), 8000)
+    }
+  }
+
+  async function handleUndoDelete() {
+    if (!lastDeletedCase) return
+    const snapshot = lastDeletedCase
+    setLastDeletedCase(null)
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current)
+    // saveCase preserves an explicit id, so the restored case keeps its identity.
+    await saveCase({ ...snapshot, id: snapshot.id, imageFile: caseToFile(snapshot) })
     await refreshSavedCases()
   }
 
@@ -1380,12 +1470,14 @@ function AnalyzeApp() {
     }
     setError('')
     setHighlightLoading(true)
+    const control = beginRequest()
     try {
-      const result = await requestHighlight(file)
+      const result = await requestHighlight(file, control)
       setHighlightResult(result)
     } catch (highlightError) {
-      setError(toRequestError(highlightError))
+      setError(toRequestError(highlightError, control))
     } finally {
+      endRequest(control)
       setHighlightLoading(false)
     }
   }
@@ -1578,6 +1670,18 @@ function AnalyzeApp() {
               <span className="loading-indicator" aria-hidden="true" />
               <h2>{mode === 'local' ? t('investigation.analyzingOnDevice') : t('investigation.takingLook')}</h2>
               <p>{mode === 'local' ? localPhaseText(localStatus) : t('investigation.analyzingDetails')}</p>
+              {mode !== 'local' && (
+                <>
+                  <p className="loading-elapsed">
+                    {requestSeconds < 5
+                      ? 'Sending your photo to the AI…'
+                      : `Still working — ${requestSeconds}s elapsed. This usually takes 20–60 seconds.`}
+                  </p>
+                  <button type="button" className="secondary-button cancel-request-button" onClick={cancelActiveRequest}>
+                    Cancel request
+                  </button>
+                </>
+              )}
             </div>
           ) : error && !hasActiveResult ? (
             <div className="error-state" role="alert">
@@ -1662,6 +1766,14 @@ function AnalyzeApp() {
                   <span className="loading-indicator" aria-hidden="true" />
                   <h2>{t('investigation.reviewing')}</h2>
                   <p>{t('investigation.comparingPrevious')}</p>
+                  <p className="loading-elapsed">
+                    {requestSeconds < 5
+                      ? 'Sending your new evidence to the AI…'
+                      : `Still working — ${requestSeconds}s elapsed. This usually takes 20–60 seconds.`}
+                  </p>
+                  <button type="button" className="secondary-button cancel-request-button" onClick={cancelActiveRequest}>
+                    Cancel request
+                  </button>
                 </div>
               ) : (
                 <>
@@ -1857,6 +1969,18 @@ function AnalyzeApp() {
                 <button type="button" className="analyze-button" onClick={runHighlight} disabled={isBusy}>
                   {highlightLoading ? t('highlight.running') : t('highlight.run')}
                 </button>
+                {highlightLoading && (
+                  <>
+                    <p className="loading-elapsed">
+                      {requestSeconds < 5
+                        ? 'Sending your photo to the AI…'
+                        : `Still working — ${requestSeconds}s elapsed. This usually takes 20–60 seconds.`}
+                    </p>
+                    <button type="button" className="secondary-button cancel-request-button" onClick={cancelActiveRequest}>
+                      Cancel request
+                    </button>
+                  </>
+                )}
                 {error && <div className="error-state" role="alert"><p>{error}</p></div>}
                 {highlightResult ? (
                   <div className="result-card highlight-result-card">
@@ -1951,6 +2075,14 @@ function AnalyzeApp() {
             <h3>{t('cases.title')}</h3>
             <p>{t('cases.note')}</p>
             {caseStatus && <p className="case-status" role="status">{caseStatus}</p>}
+            {lastDeletedCase && (
+              <p className="case-status" role="status">
+                Case deleted.{' '}
+                <button type="button" className="secondary-button" onClick={handleUndoDelete}>
+                  Undo
+                </button>
+              </p>
+            )}
             {savedCases.length > 0 ? (
               <div className="history-list saved-case-list">
                 {savedCases.map((savedCase) => {
@@ -1971,7 +2103,9 @@ function AnalyzeApp() {
                       </div>
                       <div className="saved-case-actions">
                         <button type="button" className="secondary-button" onClick={() => handleOpenCase(savedCase.id)} disabled={isBusy}>{t('cases.open')}</button>
-                        <button type="button" className="secondary-button danger-button" onClick={() => handleDeleteCase(savedCase.id)} disabled={isBusy}>{t('cases.delete')}</button>
+                        <button type="button" className="secondary-button danger-button" onClick={() => handleDeleteCase(savedCase.id)} disabled={isBusy}>
+                          {pendingDeleteId === savedCase.id ? 'Tap again to confirm delete' : t('cases.delete')}
+                        </button>
                       </div>
                     </article>
                   )
