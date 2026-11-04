@@ -17,9 +17,11 @@ wall.jpg
 /demo-output/*
 !/demo-output/UNSEEN-AI-Demo-90s-Voiced.mp4
 !/demo-output/UNSEEN-AI-Demo-90s-4K-Voiced.mp4
+!/demo-output/UNSEEN-AI-Demo-3min-Voiced.mp4
 !/demo-output/DEMO-90s-VOICE-SCRIPT-ENGLISH.md
 !/demo-output/LIVE-VOICE-SCRIPT-ENGLISH.md
 !/demo-output/VOICE-SCRIPT-ENGLISH.md
+!/demo-output/DEMO-3MIN-VOICE-SCRIPT.md
 
 # OS / editor
 .DS_Store

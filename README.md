@@ -7,11 +7,15 @@ image, and Meta AI reports **only what it can see**, how confident it is, what i
 **cannot** confirm, and — when the evidence is weak — **exactly which photo to
 take next**. It never claims a definitive diagnosis.
 
-## ▶️ Watch the demo (90 seconds)
+## ▶️ Watch the demo
 
+- **[UNSEEN-AI-Demo-3min-Voiced.mp4](demo-output/UNSEEN-AI-Demo-3min-Voiced.mp4)**
+  — **the official 3-minute demo** (720p, English voice): the full investigation
+  flow on real wall photos, from first upload to Round-2 “What Changed”.
+  Script: [DEMO-3MIN-VOICE-SCRIPT.md](demo-output/DEMO-3MIN-VOICE-SCRIPT.md)
 - **[UNSEEN-AI-Demo-90s-Voiced.mp4](demo-output/UNSEEN-AI-Demo-90s-Voiced.mp4)**
-  (720p, with English voice) — a real live recording: real wall photos, real
-  clicks, real Meta AI responses.
+  (90-second short cut, 720p, with English voice) — a real live recording: real
+  wall photos, real clicks, real Meta AI responses.
 - **[UNSEEN-AI-Demo-90s-4K-Voiced.mp4](demo-output/UNSEEN-AI-Demo-90s-4K-Voiced.mp4)**
   (4K version)
 - Voice script: [DEMO-90s-VOICE-SCRIPT-ENGLISH.md](demo-output/DEMO-90s-VOICE-SCRIPT-ENGLISH.md)
