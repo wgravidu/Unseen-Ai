@@ -69,13 +69,21 @@ app = FastAPI(
 )
 
 # Rate limiting protects the submitter's private Meta API key/credits on the
-# public deployment: each client IP gets a small budget of model calls.
-# Behind Render's proxy the first X-Forwarded-For entry is the real client.
+# public deployment. Two layers:
+#  1) Per-IP limits (below on each route).
+#  2) A GLOBAL hourly ceiling shared by every client (`global-ceiling`).
+# Layer 2 matters because X-Forwarded-For can be spoofed through proxies:
+# rotating fake IPs defeats layer 1, but the global bucket counts every model
+# call regardless of the claimed IP, so credit drain stays bounded. The
+# ceiling (200/hour) is far above honest demo use (a busy judge needs ~10).
 def _client_ip(request: Request) -> str:
     forwarded = request.headers.get('x-forwarded-for', '')
     if forwarded:
         return forwarded.split(',')[0].strip()
     return get_remote_address(request)
+
+def _global_key(request: Request) -> str:
+    return 'global-ceiling'
 
 limiter = Limiter(key_func=_client_ip, default_limits=[])
 app.state.limiter = limiter
@@ -320,6 +328,7 @@ def ask_ai(content):
 
 @app.post('/analyze',response_model=Analysis)
 @limiter.limit('6/minute')
+@limiter.limit('200/hour', key_func=_global_key)
 async def analyze(request: Request, image: UploadFile=File(...)):
     data=await prepare_image(image)
     content=[{'type':'text','text':'Analyze this image. Do not invent details.'},{'type':'image_url','image_url':{'url':data_url(data)}}]
@@ -327,6 +336,7 @@ async def analyze(request: Request, image: UploadFile=File(...)):
 
 @app.post('/investigate')
 @limiter.limit('6/minute')
+@limiter.limit('200/hour', key_func=_global_key)
 async def investigate(request: Request, images: list[UploadFile]=File(...), notes: str=Form('[]'), previous: str=Form(''), round_no: int=Form(1)):
     if not 1<=len(images)<=4:
         raise HTTPException(422,'Supply 1 to 4 images')
@@ -480,6 +490,7 @@ def ask_highlight_ai(content):
 
 @app.post('/highlight')
 @limiter.limit('10/minute')
+@limiter.limit('300/hour', key_func=_global_key)
 async def highlight(request: Request, image: UploadFile=File(...)):
     data = await prepare_image(image)
     content = [
