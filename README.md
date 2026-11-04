@@ -111,6 +111,20 @@ npm install
 npm run dev
 ```
 
+## Service health & limits
+
+- **Uptime monitoring:** Both live services are pinged every 5 minutes by
+  [UptimeRobot](https://uptimerobot.com) (`/` on the frontend and `/health` on the
+  backend), which keeps the Render free-tier backend awake so the first analysis
+  is not delayed by a cold start. No model call is made by these checks, so they
+  cost no API credits.
+- **Rate limits (public demo):** `/analyze` and `/investigate` allow 6 requests
+  per minute per IP; `/highlight` allows 10 per minute. Excess requests receive
+  HTTP 429 with a "wait a minute" message. This protects the submitter's private
+  Meta API key and the complimentary credits funding the demo.
+- **Timeouts:** The frontend aborts AI calls after 150 seconds and offers a
+  Cancel button with an elapsed-time indicator.
+
 ## Demo assets in this repo
 
 | Path | Contents |
