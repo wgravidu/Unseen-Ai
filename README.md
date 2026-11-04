@@ -68,6 +68,22 @@ Meta AI API (api.meta.ai/v1, model: muse-spark-1.3)
 The frontend discovers the backend automatically (same hostname, port 8000),
 so opening the app from a phone on the same Wi-Fi needs no configuration.
 
+## Live demo (for judges)
+
+Deploy free in ~5 minutes with the included Render Blueprint:
+
+1. Go to [render.com](https://render.com) → **New → Blueprint** → connect this repo
+   (`render.yaml` creates both services automatically).
+2. On **unseen-ai-backend → Environment**, set `MODEL_API_KEY` to your Meta AI key
+   (it is never stored in Git). `MODEL_BASE_URL`, `MODEL_NAME`, and `CORS_ORIGINS` are pre-filled.
+3. The frontend is then live at `https://unseen-ai-frontend.onrender.com` and it
+   calls `https://unseen-ai-backend.onrender.com` (check
+   [`/health`](https://unseen-ai-backend.onrender.com/health) — it should return
+   `{"status":"ok","model_configured":true}`).
+
+Notes: Render's free web services sleep after ~15 minutes idle, so the first
+visit may take ~30–60 s to wake. Keep the demo video below as a backup.
+
 ## Quick start
 
 **Windows (easiest):** double-click [`start-app.bat`](start-app.bat) — it starts
