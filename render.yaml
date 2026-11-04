@@ -4,9 +4,10 @@
 #
 # How it connects: the frontend is served from unseen-ai-frontend.onrender.com and
 # calls https://unseen-ai-backend.onrender.com directly (VITE_API_BASE_URL below).
-# The backend CORS is open ('*') because a static frontend origin makes credentialed
-# CORS fragile; this backend holds no cookies/sessions — it is a stateless, key-gated
-# proxy to the model API. Narrow CORS_ORIGINS below if you add a custom domain.
+# CORS allows only that exact frontend origin (plus local dev origins added by the
+# backend's LAN regex). Do NOT widen this to '*': with credentials disabled any
+# website could spend the demo's API credits from a visitor's browser. The real
+# credit protection is the backend rate limiting (per-IP + global hourly ceiling).
 
 services:
   - type: web
@@ -25,7 +26,7 @@ services:
       - key: MODEL_NAME
         value: muse-spark-1.3
       - key: CORS_ORIGINS
-        value: "*"
+        value: "https://unseen-ai-frontend.onrender.com"
       - key: PYTHON_VERSION
         value: "3.13.2"
 
