@@ -70,7 +70,12 @@ so opening the app from a phone on the same Wi-Fi needs no configuration.
 
 ## Live demo (for judges)
 
-Deploy free in ~5 minutes with the included Render Blueprint:
+- **▶ App: https://unseen-ai-frontend.onrender.com**
+- **Backend health: https://unseen-ai-backend.onrender.com/health**
+
+> Render's free tier sleeps after ~15 minutes idle — the first load may take 30–60 s to wake. If anything looks stuck, watch the 90-second demo video above.
+
+Deploy it yourself free in ~5 minutes with the included Render Blueprint:
 
 1. Go to [render.com](https://render.com) → **New → Blueprint** → connect this repo
    (`render.yaml` creates both services automatically).
