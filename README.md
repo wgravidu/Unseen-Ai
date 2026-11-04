@@ -170,3 +170,13 @@ The human submitter selected the product concept, supplied the real wall photos,
 changes and outputs, tested the application, entered the deployment key in Render, and
 submitted the project. No claim is made that every line was manually typed; the AI tools
 above were genuinely used and are disclosed intentionally.
+
+### Which AI is which?
+
+| Thing | What it is | Used for |
+|---|---|---|
+| **Muse Wonder** | AI model selected in the Copilot chat session during development | Coding, debugging, docs, Git and deployment assistance |
+| **GitHub Copilot** | VS Code agent platform that exposes file/terminal/Git tools to the model | Running the development workflow above |
+| **Meta AI API** (`api.meta.ai/v1`) | API the deployed app calls at runtime | `POST /analyze`, `POST /investigate`, `POST /highlight` |
+| **Muse Spark 1.3** | Meta AI model configured in the backend for the app | Real wall-photo analysis, Next Best View, damage highlights |
+| **Private API key + US$150 credits** | Submitter-held key (server-side env only, never committed) funded by complimentary Meta credits | Authenticating and paying for the runtime Meta AI API calls |
