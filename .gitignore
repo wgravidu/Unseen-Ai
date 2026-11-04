@@ -12,6 +12,15 @@ dist/
 # Local scratch / test images (keep test_meta.py if useful, ignore large photos)
 wall.jpg
 
+# Demo videos: only the two voiced 90s cuts are published (see README).
+# Keep every other render local to keep the repo light for cloning.
+/demo-output/*
+!/demo-output/UNSEEN-AI-Demo-90s-Voiced.mp4
+!/demo-output/UNSEEN-AI-Demo-90s-4K-Voiced.mp4
+!/demo-output/DEMO-90s-VOICE-SCRIPT-ENGLISH.md
+!/demo-output/LIVE-VOICE-SCRIPT-ENGLISH.md
+!/demo-output/VOICE-SCRIPT-ENGLISH.md
+
 # OS / editor
 .DS_Store
 Thumbs.db

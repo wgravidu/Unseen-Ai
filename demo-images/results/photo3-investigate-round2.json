@@ -1,0 +1,77 @@
+{
+  "is_wall_visible": true,
+  "observations": [
+    "Light off-white interior wall surface visible in both close-up frames",
+    "First photo shows horizontal band of rough pitted plaster with paint flaking/peeling and fine cracking",
+    "Second photo shows diffuse grey-green-black speckled patchy discoloration over paint with uneven surface and minor flaking",
+    "Darker shading toward bottom of first frame and faint brownish streak near bottom-left of second frame",
+    "No floor junction, skirting, ceiling, full wall extent, adjacent bathroom fixtures, or scale reference visible"
+  ],
+  "uncertainties": [
+    "Whether speckled discoloration is active growth versus staining cannot be confirmed from photos alone",
+    "Exact moisture content and whether dampness is active/ongoing cannot be determined visually; damp to touch is user-reported",
+    "Full vertical extent down to floor/skirting and lateral extent beyond frames is unknown",
+    "Condition of opposite bathroom side, plumbing, tiling, waterproofing and ventilation is unknown",
+    "Wall material, paint type and age of damage unknown"
+  ],
+  "possible_causes": [
+    {
+      "cause": "Moisture migration/high humidity from adjacent bathroom causing paint/plaster deterioration with discoloration consistent with mould/mildew",
+      "likelihood": "high"
+    },
+    {
+      "cause": "Condensation on interior wall due to poor ventilation",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Paint adhesion failure unrelated to moisture",
+      "likelihood": "low"
+    }
+  ],
+  "needs_more_evidence": true,
+  "followup_request": {
+    "type": "question",
+    "text": "Does the bottom dampness get noticeably worse after the bathroom is used versus staying the same?"
+  },
+  "next_best_view": {
+    "instruction": "Take a wider photo from about 1.5-2 meters back, straight-on angle in daylight without flash, showing the full speckled/damaged patch centered from mid-wall down to the floor/skirting junction.",
+    "focus_area": {
+      "x_min": 150.0,
+      "y_min": 250.0,
+      "x_max": 900.0,
+      "y_max": 750.0
+    },
+    "reason": "To check vertical damp gradient and floor junction condition to distinguish rising damp vs seepage/splash from bathroom",
+    "expected_evidence": "Full extent of patch, condition at floor/skirting junction, whether darkening worsens downward",
+    "priority": "high",
+    "visual_guide": "box",
+    "distance": "wide",
+    "angle": "straight"
+  },
+  "safe_next_steps": [
+    "Do not scrape, sand, scrub or repaint yet",
+    "Keep the area dry and avoid wetting or mopping against the wall",
+    "Do not apply sealant, filler or bleach until cause is clearer",
+    "Ventilate the area and reduce bathroom humidity if possible",
+    "Avoid prolonged skin contact/inhalation near speckled area and monitor for size, colour or dampness change"
+  ],
+  "confidence": 0.62,
+  "what_changed": {
+    "new_observations": [
+      "Darker shading toward bottom of first frame and faint brownish streak near bottom-left of second frame",
+      "First photo shows horizontal band of rough pitted plaster with paint flaking/peeling and fine cracking",
+      "Light off-white interior wall surface visible in both close-up frames",
+      "No floor junction, skirting, ceiling, full wall extent, adjacent bathroom fixtures, or scale reference visible",
+      "Second photo shows diffuse grey-green-black speckled patchy discoloration over paint with uneven surface and minor flaking"
+    ],
+    "removed_observations": [
+      "Central horizontal band with irregular surface texture, paint flaking/peeling and pitting",
+      "Fine cracks and uneven plaster texture visible in central area",
+      "Light off-white/grey wall surface fills the frame",
+      "No floor, ceiling, corners, or fixtures visible for scale or location context",
+      "Slightly darker shading toward bottom of frame"
+    ],
+    "confidence_delta": 0.16999999999999998,
+    "note": "Changes reflect model output, not verified physical changes."
+  }
+}

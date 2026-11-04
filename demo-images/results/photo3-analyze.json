@@ -1,0 +1,54 @@
+{
+  "is_wall_visible": true,
+  "observations": [
+    "Light off-white/grey wall surface fills the frame",
+    "Central horizontal band with irregular surface texture, paint flaking/peeling and pitting",
+    "Fine cracks and uneven plaster texture visible in central area",
+    "Slightly darker shading toward bottom of frame",
+    "No floor, ceiling, corners, or fixtures visible for scale or location context"
+  ],
+  "uncertainties": [
+    "Whether surface is currently damp or dry cannot be determined from this photo",
+    "Extent of damage outside current close-up frame is unknown",
+    "Wall material and number of paint layers unknown",
+    "Age of damage and whether it is active or old is unknown",
+    "Source of surface deterioration cannot be confirmed"
+  ],
+  "possible_causes": [
+    {
+      "cause": "Paint adhesion failure / surface plaster deterioration",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Past moisture exposure affecting surface finish",
+      "likelihood": "low"
+    }
+  ],
+  "needs_more_evidence": true,
+  "followup_request": {
+    "type": "question",
+    "text": "Has this wall area had any water contact, leak, or dampness noticed recently?"
+  },
+  "next_best_view": {
+    "instruction": "Provide a wider photo showing the full wall with the damaged patch in the center, including floor junction below and top/ceiling above if possible. Stand about 2 meters back, straight angle, in good daylight without flash.",
+    "focus_area": {
+      "x_min": 100.0,
+      "y_min": 350.0,
+      "x_max": 900.0,
+      "y_max": 700.0
+    },
+    "reason": "To determine full extent of surface damage and check top edge and floor junction for moisture source context",
+    "expected_evidence": "Full wall context, extent of peeling beyond current frame, condition at floor and top edges",
+    "priority": "medium",
+    "visual_guide": "box",
+    "distance": "wide",
+    "angle": "straight"
+  },
+  "safe_next_steps": [
+    "Do not scrape, sand or repaint yet",
+    "Keep the area dry and avoid wetting the surface",
+    "Do not apply sealant or filler until cause is clearer",
+    "Monitor for change in size, texture or dampness"
+  ],
+  "confidence": 0.45
+}

@@ -1,0 +1,31 @@
+{
+  "wall_visible": true,
+  "regions": [
+    {
+      "label": "peeling paint area",
+      "x_min": 80,
+      "y_min": 395,
+      "x_max": 865,
+      "y_max": 680,
+      "confidence": 0.9
+    },
+    {
+      "label": "dark discoloration patch",
+      "x_min": 400,
+      "y_min": 860,
+      "x_max": 710,
+      "y_max": 1000,
+      "confidence": 0.65
+    },
+    {
+      "label": "discoloration streak",
+      "x_min": 778,
+      "y_min": 210,
+      "x_max": 822,
+      "y_max": 325,
+      "confidence": 0.6
+    }
+  ],
+  "method": "meta_vision_bbox_v1",
+  "message": "Central horizontal band shows peeling paint with rough pitted texture, plus subtle dark discoloration at bottom center and a small vertical streak upper right."
+}

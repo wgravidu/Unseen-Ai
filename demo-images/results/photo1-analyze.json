@@ -1,0 +1,57 @@
+{
+  "is_wall_visible": true,
+  "observations": [
+    "White/light-colored wall surface fills most of the frame",
+    "Irregular diffuse patch of grey-green-black speckled discoloration across central to upper-right area",
+    "Spotted, granular appearance with varying density, denser in patches",
+    "Faint brownish vertical streak near bottom-left of frame",
+    "Vertical edge/corner visible along right margin"
+  ],
+  "uncertainties": [
+    "Whether the surface is actively damp, dry, or powdery cannot be determined from this photo alone",
+    "Full extent of discoloration beyond cropped frame is unknown",
+    "Room type, wall position, proximity to water sources, windows, or exterior is unknown",
+    "Presence of paint blistering, flaking, plaster softening, or active water droplets is not clearly visible"
+  ],
+  "possible_causes": [
+    {
+      "cause": "Surface mould/mildew-type growth associated with prolonged surface dampness or high humidity",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Condensation-related dampness due to poor ventilation",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Water ingress or hidden leak from behind/above/adjacent area",
+      "likelihood": "low"
+    }
+  ],
+  "needs_more_evidence": true,
+  "followup_request": {
+    "type": "question",
+    "text": "Is this wall near a bathroom, kitchen, window, or exterior wall, and does the patch feel damp to touch?"
+  },
+  "next_best_view": {
+    "instruction": "Take a wider photo showing the full wall from floor junction to top/ceiling, including the right corner edge, from about 1.5-2m distance, straight angle in good light.",
+    "focus_area": {
+      "x_min": 150.0,
+      "y_min": 200.0,
+      "x_max": 920.0,
+      "y_max": 900.0
+    },
+    "reason": "Wider context and floor/wall and ceiling junctions help assess extent and possible moisture source",
+    "expected_evidence": "Full extent of staining and proximity to floor, ceiling, window, or plumbing fixtures",
+    "priority": "high",
+    "visual_guide": "box",
+    "distance": "wide",
+    "angle": "straight"
+  },
+  "safe_next_steps": [
+    "Ventilate the room and avoid prolonged close inhalation without a mask",
+    "Do not paint over or aggressively scrape until moisture status is clearer",
+    "Avoid direct skin contact with discolored area",
+    "Monitor for spreading, change in color, damp smell, or softening paint"
+  ],
+  "confidence": 0.6
+}

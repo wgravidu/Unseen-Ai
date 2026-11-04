@@ -1,0 +1,58 @@
+{
+  "is_wall_visible": true,
+  "observations": [
+    "Close-up view of an off-white wall surface",
+    "Scattered irregular dark grey to greenish-black speckled spots across the frame",
+    "Diffuse patchy distribution with denser clustering in center and lower areas",
+    "No visible water droplets, cracks, peeling, or bubbling paint in this tight crop",
+    "No scale reference, room context, or adjacent ceiling/floor/window visible"
+  ],
+  "uncertainties": [
+    "Total size and extent of the affected area",
+    "Location of this wall within the property and proximity to moisture sources",
+    "Whether the surface is currently damp or dry",
+    "Wall material, surface texture, and how long spots have been present",
+    "Ventilation, humidity, and lighting conditions in the room"
+  ],
+  "possible_causes": [
+    {
+      "cause": "Mould/mildew-like surface growth associated with dampness or high humidity",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Condensation-related surface discoloration",
+      "likelihood": "medium"
+    },
+    {
+      "cause": "Dirt or dust accumulation on a previously damp surface",
+      "likelihood": "low"
+    }
+  ],
+  "needs_more_evidence": true,
+  "followup_request": {
+    "type": "question",
+    "text": "Which room is this wall in, and is it near a window, bathroom, exterior wall, or area with poor ventilation?"
+  },
+  "next_best_view": {
+    "instruction": "Take a wider photo from about 1.5m distance, straight angle, showing the full spotted area plus surrounding wall and nearest ceiling, corner or floor junction for context",
+    "focus_area": {
+      "x_min": 100.0,
+      "y_min": 100.0,
+      "x_max": 900.0,
+      "y_max": 900.0
+    },
+    "reason": "Current view is extreme close-up with no context; wider view needed to assess extent and locate potential moisture source",
+    "expected_evidence": "Overall size of patch and its position relative to corners, ceiling, window or floor",
+    "priority": "high",
+    "visual_guide": "box",
+    "distance": "wide",
+    "angle": "straight"
+  },
+  "safe_next_steps": [
+    "Do not scrub, scrape or apply chemicals aggressively until pattern is clearer",
+    "Avoid close inhalation or touching of the spots",
+    "Ventilate the room if possible and keep the surface dry",
+    "Do not disturb paint or plaster; document with wider photos first"
+  ],
+  "confidence": 0.45
+}

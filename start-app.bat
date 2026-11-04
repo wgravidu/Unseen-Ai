@@ -8,7 +8,7 @@ echo ============================================
 echo.
 
 REM --- Backend (FastAPI, port 8000) ---
-curl -s http://127.0.0.1:8000/health >nul 2>&1
+curl -k -s https://127.0.0.1:8000/health >nul 2>&1
 if %errorlevel%==0 (
   echo [OK] Backend already running on port 8000
 ) else (
@@ -17,7 +17,7 @@ if %errorlevel%==0 (
 )
 
 REM --- Frontend (Vite, port 5173) ---
-curl -s http://127.0.0.1:5173/ >nul 2>&1
+curl -k -s https://127.0.0.1:5173/ >nul 2>&1
 if %errorlevel%==0 (
   echo [OK] Frontend already running on port 5173
 ) else (
@@ -30,7 +30,7 @@ echo.
 echo Waiting for the app to be ready...
 set /a tries=0
 :waitloop
-curl -s http://127.0.0.1:5173/ >nul 2>&1
+curl -k -s https://127.0.0.1:5173/ >nul 2>&1
 if %errorlevel%==0 goto ready
 set /a tries+=1
 if %tries% GEQ 30 goto timeout
@@ -39,7 +39,7 @@ goto waitloop
 
 :ready
 echo [OK] App is ready!
-start "" http://127.0.0.1:5173/
+start "" https://localhost:5173/
 echo.
 echo Local:   https://localhost:5173
 for /f "tokens=2 delims=:" %%A in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
@@ -48,7 +48,7 @@ for /f "tokens=2 delims=:" %%A in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
 )
 :lanipdone
 if defined LANIP echo Network: https://%LANIP: =%:5173 - Open this on mobile (camera works on HTTPS)
-echo Browser opened: http://127.0.0.1:5173/
+echo Browser opened: https://localhost:5173/
 echo Keep the two black server windows open while using the app.
 echo To STOP the app: close those two windows (or press Ctrl+C in them).
 goto end
