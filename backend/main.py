@@ -1,12 +1,16 @@
 import os, io, json, base64, logging
 from typing import Literal
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
 from openai import OpenAI
 from PIL import Image, ImageOps, UnidentifiedImageError
 from pydantic import BaseModel, Field, ValidationError
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -53,7 +57,44 @@ If needs_more_evidence=true, you MUST provide next_best_view with specific instr
 
 Only describe what photos support. Never claim definitive diagnosis. Ask at most one targeted follow-up.'''
 
-app = FastAPI(title='UNSEEN AI Backend', version='3.0')
+# Interactive API docs are useful locally but leak the full schema on a public
+# deployment, so they are opt-in via EXPOSE_DOCS=1 (never set it on Render).
+EXPOSE_DOCS = os.getenv('EXPOSE_DOCS', '').strip().lower() in ('1', 'true', 'yes')
+app = FastAPI(
+    title='UNSEEN AI Backend',
+    version='3.0',
+    docs_url='/docs' if EXPOSE_DOCS else None,
+    redoc_url='/redoc' if EXPOSE_DOCS else None,
+    openapi_url='/openapi.json' if EXPOSE_DOCS else None,
+)
+
+# Rate limiting protects the submitter's private Meta API key/credits on the
+# public deployment: each client IP gets a small budget of model calls.
+# Behind Render's proxy the first X-Forwarded-For entry is the real client.
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get('x-forwarded-for', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return get_remote_address(request)
+
+limiter = Limiter(key_func=_client_ip, default_limits=[])
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={'detail': 'Too many analysis requests from this network. Please wait a minute and try again.'},
+    )
+
+@app.middleware('http')
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'no-referrer'
+    response.headers['Cross-Origin-Resource-Policy'] = 'same-site'
+    return response
 # Default allows local + LAN phone testing on Vite origins. Set CORS_ORIGINS='*' explicitly for wide-open local testing only; do not use '*' on a public deployment.
 CORS_ORIGINS = [x.strip() for x in os.getenv('CORS_ORIGINS','http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173').split(',') if x.strip()]
 CORS_ALLOW_ALL = CORS_ORIGINS == ['*']
@@ -277,13 +318,15 @@ def ask_ai(content):
     raise last_error or HTTPException(502,'AI returned an invalid structured response; please retry')
 
 @app.post('/analyze',response_model=Analysis)
-async def analyze(image: UploadFile=File(...)):
+@limiter.limit('6/minute')
+async def analyze(request: Request, image: UploadFile=File(...)):
     data=await prepare_image(image)
     content=[{'type':'text','text':'Analyze this image. Do not invent details.'},{'type':'image_url','image_url':{'url':data_url(data)}}]
     return await run_in_threadpool(ask_ai,content)
 
 @app.post('/investigate')
-async def investigate(images: list[UploadFile]=File(...), notes: str=Form('[]'), previous: str=Form(''), round_no: int=Form(1)):
+@limiter.limit('6/minute')
+async def investigate(request: Request, images: list[UploadFile]=File(...), notes: str=Form('[]'), previous: str=Form(''), round_no: int=Form(1)):
     if not 1<=len(images)<=4:
         raise HTTPException(422,'Supply 1 to 4 images')
     if not 1<=round_no<=20:
@@ -435,7 +478,8 @@ def ask_highlight_ai(content):
     raise last_error or HTTPException(502, 'AI returned an invalid highlight response; please retry')
 
 @app.post('/highlight')
-async def highlight(image: UploadFile=File(...)):
+@limiter.limit('10/minute')
+async def highlight(request: Request, image: UploadFile=File(...)):
     data = await prepare_image(image)
     content = [
         {'type': 'text', 'text': 'Find tightly bounded visible wall problem areas in this image. Return JSON only.'},
