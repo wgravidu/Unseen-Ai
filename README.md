@@ -9,10 +9,12 @@ take next**. It never claims a definitive diagnosis.
 
 ## ▶️ Watch the demo
 
-- **[UNSEEN-AI-Demo-3min-Voiced.mp4](demo-output/UNSEEN-AI-Demo-3min-Voiced.mp4)**
-  — **the official 3-minute demo** (720p, English voice): the full investigation
-  flow on real wall photos, from first upload to Round-2 “What Changed”.
-  Script: [DEMO-3MIN-VOICE-SCRIPT.md](demo-output/DEMO-3MIN-VOICE-SCRIPT.md)
+- **[Watch the official 3-minute demo on YouTube](https://youtu.be/-vA_2NhZnXk)**
+  — the full investigation flow on real wall photos, from first upload to
+  Round-2 “What Changed”, with English voice-over.
+- [Download the 3-minute MP4](demo-output/UNSEEN-AI-Demo-3min-Voiced.mp4)
+  (720p, English voice). Script:
+  [DEMO-3MIN-VOICE-SCRIPT.md](demo-output/DEMO-3MIN-VOICE-SCRIPT.md)
 - **[UNSEEN-AI-Demo-90s-Voiced.mp4](demo-output/UNSEEN-AI-Demo-90s-Voiced.mp4)**
   (90-second short cut, 720p, with English voice) — a real live recording: real
   wall photos, real clicks, real Meta AI responses.
